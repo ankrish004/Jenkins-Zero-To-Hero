@@ -6,7 +6,7 @@ pipeline {
         args '-v /var/run/docker.sock:/var/run/docker.sock'
    }
   }
-  
+
   stages {
     stage('Checkout') {
       steps {
@@ -32,11 +32,14 @@ pipeline {
       }
     }
     stage('Build and Push Docker Image') {
-      environment {
-        DOCKER_IMAGE = "ankrish/ultimate-cicd:${BUILD_NUMBER}"
-        // DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
-        REGISTRY_CREDENTIALS = credentials('docker-cred')
+      agent any
+      steps {
+        sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ankrish/ultimate-cicd:${BUILD_NUMBER} .'
       }
+    }
+
+
+
       steps {
         script {
             sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${DOCKER_IMAGE} .'
