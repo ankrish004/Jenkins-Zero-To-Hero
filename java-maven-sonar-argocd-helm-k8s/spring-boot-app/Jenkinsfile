@@ -12,6 +12,7 @@ pipeline {
       steps {
         sh 'echo passed'
         git branch: 'main', url: 'https://github.com/ankrish004/Jenkins-Zero-To-Hero.git'
+        
       }
     }
 
@@ -61,14 +62,20 @@ pipeline {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
                     git config --global user.email "prajapati.ankrish@gmail.com"
-                    git config --global user.name "ankrish004"  
-                    git config user.email "prajapati.ankrish@gmail.com"
-                    git config user.name "ankrish004"
-                    BUILD_NUMBER=${BUILD_NUMBER}
+                    git config --global user.name "ankrish004"
+
+                    # ✅ Fix detached HEAD issue
+                    git checkout main
+
                     sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+
                     git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+
+                    # ✅ Prevent pipeline failure if no changes
+                    git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+
+                    # ✅ Cleaner push
+                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} main
                 '''
             }
         }
