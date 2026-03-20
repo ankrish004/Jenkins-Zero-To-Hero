@@ -63,6 +63,7 @@ pipeline {
                 sh '''
                     git config --global user.email "prajapati.ankrish@gmail.com"
                     git config --global user.name "ankrish004"
+                    git config --global --add safe.directory /var/lib/jenkins/workspace/demo
 
                     # ✅ Fix detached HEAD issue
                     git checkout main
